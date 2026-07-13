@@ -1,0 +1,5 @@
+resource "dynatrace_oneagent_features" "JAVA_LOG_ENRICHMENT_UNSTRUCTURED_PROCESS_GROUP-F3E231019FC9394E" {
+  enabled = false
+  key     = "JAVA_LOG_ENRICHMENT_UNSTRUCTURED"
+  scope   = "PROCESS_GROUP-F3E231019FC9394E"
+}
