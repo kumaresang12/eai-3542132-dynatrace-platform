@@ -1,0 +1,89 @@
+name: Prod and NonProd Dynatrace Configuration Comparision and export to Excel
+'on':
+    workflow_dispatch:
+
+ #   schedule:
+ #     - cron: "0 8 * * *"
+
+permissions: 
+  contents: write
+  
+env:
+  NP_TF_WORKING_DIR: dt_backup/nonprod/terraform
+  P_TF_WORKING_DIR: dt_backup/prod/terraform
+  PY_WORKING_DIR: dt_backup
+
+jobs:
+  dynatrace-backup:
+    runs-on: self-hosted
+    steps:
+
+      - name: Install unzip
+        run: |
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          if ! command -v unzip >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y unzip
+          fi
+
+      - name: Checkout Repository with both Prod and NonProd along with Python script
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Verify Terraform Version
+        run: |
+          terraform version
+
+      - name: Initiate Terraform using terraform init for NonProd 
+        working-directory: ${{ env.NP_TF_WORKING_DIR }}
+        run: |
+          terraform init
+
+      - name: Find the terrform-provider-dynatrace executable and Export Dynatrace Configuration using terraform-provider-dynatrace in NonProd
+        working-directory: ${{ env.NP_TF_WORKING_DIR }}
+        env:
+          DYNATRACE_ENV_URL: ${{ vars.NP_DYNATRACE_API_URL }}
+          DYNATRACE_API_TOKEN: ${{ secrets.NP_DYNATRACE_API_TOKEN }}
+          DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
+        run: |
+          export DYNATRACE_ENV_URL=$DYNATRACE_ENV_URL
+          export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
+          export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
+          PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace \
+            -type f \
+            -name "terraform-provider-dynatrace*" | head -n 1)
+          echo "Provider Binary: $PROVIDER_BIN"
+          "$PROVIDER_BIN" -export
+
+      - name: Initiate Terraform using terraform init for Prod 
+        working-directory: ${{ env.P_TF_WORKING_DIR }}
+        run: |
+          terraform init
+
+      - name: Find the terrform-provider-dynatrace executable and Export Dynatrace Configuration using terraform-provider-dynatrace in Prod
+        working-directory: ${{ env.P_TF_WORKING_DIR }}
+        env:
+          DYNATRACE_ENV_URL: ${{ vars.P_DYNATRACE_API_URL }}
+          DYNATRACE_API_TOKEN: ${{ secrets.P_DYNATRACE_API_TOKEN }}
+          DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
+        run: |
+          export DYNATRACE_ENV_URL=$DYNATRACE_ENV_URL
+          export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
+          export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
+          PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace \
+            -type f \
+            -name "terraform-provider-dynatrace*" | head -n 1)
+          echo "Provider Binary: $PROVIDER_BIN"
+          "$PROVIDER_BIN" -export
+
+#      - name: Install Python and modules
+#        working-directory: ${{ env.PY_WORKING_DIR }}
+#        run: |
+#          #For Ubuntu
+#          sudo apt install python3 python3-pip
+#          sudo p
+          
