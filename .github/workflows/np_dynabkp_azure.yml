@@ -70,6 +70,13 @@ jobs:
           BACKUP_FILE="np-dynatrace-config-${TIMESTAMP}.tar.gz"
           tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/*
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
+
+      - name: Install Azure CLI
+        run: |
+          #curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+          sudo dnf install -y https://packages.microsoft.com/config/rhel/9/packages-microsoft-prod.rpm
+          sudo dnf install -y azure-cli
           
       - name: Azure Login to upload the configuration into blob storage
         uses: azure/login@v2
