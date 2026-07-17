@@ -21,6 +21,7 @@ jobs:
 
       - name: Install unzip
         run: |
+          echo "TIMESTAMP=$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
           if ! command -v unzip >/dev/null 2>&1; then
             sudo apt-get update
