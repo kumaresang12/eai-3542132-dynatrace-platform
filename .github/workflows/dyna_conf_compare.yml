@@ -96,7 +96,7 @@ jobs:
       - name: Rename the comparision report file
         working-directory: ${{ env.PY_WORKING_DIR }}
         run: |
-          echo "TIMESTAMP=$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
+          echo "TIMESTAMP=$(date +%Y%m%d-%H%M%S)"
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
           REPORT_FILE="dynatrace_comparison_${TIMESTAMP}.xlsx"
           echo "REPORT_FILE=$REPORT_FILE" >> $GITHUB_ENV
